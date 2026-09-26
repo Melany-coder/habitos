@@ -356,48 +356,66 @@ const REC=[
 ];
 
 const SCHED_ACC=['#00f0ff','#ff00d4','#00ff9f','#ffb400','#7bb0ff','#ff3d81','#00e5ff','#b1ff2e','#d08cff','#ff6d00','#7c3aed','#00f0ff'];
-const WEEKDAY_BLOCKS=[
-{time:'06:30 - 07:00',name:'Rutina de Mañana',detail:'Levantarse, hidratación, aseo y estiramientos ligeros.'},
-{time:'07:00 - 08:15',name:'Bloque de Entrenamiento',detail:'Estructura según el día (Calistenia + Cardio/Core).',train:true},
-{time:'08:15 - 08:45',name:'Ducha y Desayuno',detail:'Cargar energías con buena proteína y carbohidratos complejos.'},
-{time:'08:45 - 12:00',name:'Bloque Académico / Clases',detail:'Cursado académico principal, tareas o avance de entregas lectivas (Pomodoro: 50 min / 10 descanso).'},
-{time:'12:00 - 13:30',name:'Almuerzo y Descanso',detail:'Tiempo para comer con calma y desconectar la mente.'},
-{time:'13:30 - 15:30',name:'Tecnología & Habilidades',detail:'Práctica en TryHackMe, laboratorios de Linux, Python o ciberseguridad.'},
-{time:'15:30 - 17:00',name:'Proyecto Personal',detail:'Desarrollo de proyectos (ej. Jarvis, automatización, Home Lab, dotfiles).'},
-{time:'17:00 - 18:30',name:'Tiempo Libre / Social',detail:'Charlar, compartir con tu novia/amigos o dar una caminata.'},
-{time:'18:30 - 20:30',name:'Inglés / Lectura / Pasatiempos',detail:'Práctica de inglés (20 min) + lectura de Marvel Unlimited o ver capítulos de anime.'},
-{time:'20:30 - 21:30',name:'Cena y Cierre del Día',detail:'Cena ligera, organizar espacio de trabajo para el día siguiente.'},
-{time:'21:30 - 22:30',name:'Desconexión Digital',detail:'Gaming (Minecraft, etc.), música o relax sin tareas pendientes.'},
-{time:'22:30',name:'Hábito de Sueño',detail:'A la cama para garantizar 7-8 horas de descanso profundo.'}
-];
-const REHEARSAL={
-1:{start:'14:00',end:'17:30'},
-2:{start:'16:00',end:'17:30'},
-3:{start:'14:00',end:'17:30'},
-4:{start:'16:00',end:'17:30'}
+const PM_CLASS={
+2:{start:'13:00',end:'15:40'},
+4:{start:'13:40',end:'14:20'},
+5:{start:'13:00',end:'15:40'}
 };
 function weekdayOf(dow){
-  const b=WEEKDAY_BLOCKS;
-  const r=REHEARSAL[dow];
-  if(!r)return b;
-  const ensayo={time:r.start+' - '+r.end,name:'Ensayo · Violín/Banda',detail:'Ensayo de violín/banda. Bloque fijo de la semana (clases y ensayos).',train:false};
-  const libre={time:'17:30 - 18:30',name:'Tiempo Libre / Social',detail:'Charlar, compartir con tu novia/amigos o dar una caminata (adaptado por el ensayo).'};
-  if(r.start==='14:00'){
-    return [
-      b[0],b[1],b[2],b[3],b[4],
-      {time:'13:30 - 14:00',name:'Tecnología & Habilidades',detail:'Mini-bloque de práctica (reducido por el ensayo).'},
-      ensayo,
-      libre,
-      b[8],b[9],b[10],b[11]
-    ];
+  const base={
+    rutina:{time:'05:40 - 06:15',name:'Rutina de Mañana',detail:'Levantarse, hidratación, aseo y estiramientos ligeros (madrugar para llegar a clase).'},
+    desayuno:{time:'06:15 - 06:30',name:'Desayuno',detail:'Cargar energías rápido y salir a clases.'},
+    claseAm:{time:'06:30 - 12:30',name:'Clases · Mañana',detail:'Jornada escolar de la mañana (Lunes a Viernes).'},
+    cena:{time:'19:00 - 19:30',name:'Cena y Cierre del Día',detail:'Cena ligera con buena proteína para reponer del entrenamiento.'},
+    ingles:{time:'19:30 - 21:00',name:'Inglés / Lectura / Pasatiempos',detail:'Práctica de inglés (20 min) + lectura de Marvel Unlimited o anime.'},
+    desco:{time:'21:00 - 22:00',name:'Desconexión Digital',detail:'Gaming (Minecraft, etc.), música o relax sin tareas.'},
+    sueno:{time:'22:00',name:'Hábito de Sueño',detail:'A la cama para dormir 7-8 horas (madruga a clases).'}
+  };
+  const ensayo={time:'16:00 - 17:30',name:'Ensayo · Violín/Banda',detail:'Ensayo de violín/banda. Bloque fijo de la semana.'};
+  if(dow===1){
+    return [base.rutina,base.desayuno,base.claseAm,
+      {time:'12:30 - 13:15',name:'Regreso + Almuerzo',detail:'Volver a casa y comer con calma.'},
+      {time:'13:15 - 14:00',name:'Tecnología & Habilidades',detail:'Mini-bloque de práctica (TryHackMe/Linux) antes del ensayo.'},
+      {time:'14:00 - 17:30',name:'Ensayo · Violín/Banda',detail:'Ensayo de violín/banda. Bloque fijo de la semana.'},
+      {time:'17:30 - 19:00',name:'Bloque de Entrenamiento',detail:'Calistenia Día 1 + Cardio Full Body y Core.',train:true},
+      base.cena,base.ingles,base.desco,base.sueno];
   }
-  return [
-    b[0],b[1],b[2],b[3],b[4],b[5],
-    {time:'15:30 - 16:00',name:'Proyecto Personal',detail:'Mini-bloque de proyecto (reducido por el ensayo).'},
-    ensayo,
-    libre,
-    b[8],b[9],b[10],b[11]
-  ];
+  if(dow===2){
+    return [base.rutina,base.desayuno,base.claseAm,
+      {time:'12:30 - 13:00',name:'Almuerzo',detail:'Almuerzo rápido antes de la clase de la tarde.'},
+      {time:'13:00 - 15:40',name:'Clases · Tarde',detail:'Clase en la tarde (Martes y Viernes).'},
+      {time:'15:40 - 16:00',name:'Transición',detail:'Hidratación y preparación para el ensayo.'},
+      ensayo,
+      {time:'17:30 - 19:00',name:'Bloque de Entrenamiento',detail:'Mixto de Alta Intensidad (Abdomen & Cardio).',train:true},
+      base.cena,base.ingles,base.desco,base.sueno];
+  }
+  if(dow===3){
+    return [base.rutina,base.desayuno,base.claseAm,
+      {time:'12:30 - 13:15',name:'Regreso + Almuerzo',detail:'Volver a casa y comer con calma.'},
+      {time:'13:15 - 14:00',name:'Tecnología & Habilidades',detail:'Mini-bloque de práctica (TryHackMe/Linux) antes del ensayo.'},
+      {time:'14:00 - 17:30',name:'Ensayo · Violín/Banda',detail:'Ensayo de violín/banda. Bloque fijo de la semana.'},
+      {time:'17:30 - 19:00',name:'Bloque de Entrenamiento',detail:'Calistenia Día 2 + Hipertrofia Abdominal.',train:true},
+      base.cena,base.ingles,base.desco,base.sueno];
+  }
+  if(dow===4){
+    return [base.rutina,base.desayuno,base.claseAm,
+      {time:'12:30 - 13:40',name:'Almuerzo + Descanso',detail:'Comer y descansar hasta la clase corta.'},
+      {time:'13:40 - 14:20',name:'Clase · Tarde',detail:'Clase corta de la tarde (Jueves).'},
+      {time:'14:20 - 15:20',name:'Tecnología & Habilidades',detail:'TryHackMe, Linux, Python o ciberseguridad.'},
+      {time:'15:20 - 16:00',name:'Proyecto Personal',detail:'Mini-bloque de proyecto (Home Lab, dotfiles, Jarvis).'},
+      ensayo,
+      {time:'17:30 - 19:00',name:'Bloque de Entrenamiento',detail:'Descanso Activo: caminata ligera, movilidad o estiramientos.',train:true},
+      base.cena,base.ingles,base.desco,base.sueno];
+  }
+  return [base.rutina,base.desayuno,base.claseAm,
+    {time:'12:30 - 13:00',name:'Almuerzo',detail:'Almuerzo rápido antes de la clase de la tarde.'},
+    {time:'13:00 - 15:40',name:'Clases · Tarde',detail:'Clase en la tarde (Viernes).'},
+    {time:'15:40 - 16:40',name:'Tecnología & Habilidades',detail:'TryHackMe, Linux, Python o ciberseguridad.'},
+    {time:'16:40 - 18:10',name:'Bloque de Entrenamiento',detail:'Calistenia Día 3 + Cardio Full Body y Reto Six-Pack.',train:true},
+    {time:'18:10 - 18:40',name:'Cena y Cierre del Día',detail:'Cena ligera con buena proteína.'},
+    {time:'18:40 - 20:30',name:'Inglés / Lectura / Pasatiempos',detail:'Práctica de inglés (20 min) + lectura o anime.'},
+    {time:'20:30 - 21:30',name:'Desconexión Digital',detail:'Gaming (Minecraft, etc.), música o relax.'},
+    {time:'21:30',name:'Hábito de Sueño',detail:'A la cama para dormir 7-8 horas (madruga a clases).'}];
 }
 const SAT_PLAN=[
 {time:'08:00 - 09:30',text:'Entrenamiento (Cardio & Abdomen del Sábado) + Ducha/Desayuno.',train:true},
